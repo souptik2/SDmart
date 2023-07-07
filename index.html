@@ -261,6 +261,7 @@
                 focusedElement.classList.contains("item-quantity")
               ) {
                 addItem();
+                event.preventDefault(); // Prevent the form submission when Enter is pressed inside an item field
               }
             }
           });
