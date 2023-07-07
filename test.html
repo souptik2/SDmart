@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SD Mart</title>
+    <style>
+      /* CSS styles for the form */
+      body {
+        background: linear-gradient(to bottom, #f9f9f9, #e0e0e0);
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      .container {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        max-width: 400px;
+        width: 100%;
+      }
+
+      h2 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      input[type="text"],
+      input[type="tel"],
+      input[type="email"],
+      input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+        box-sizing: border-box;
+      }
+
+      #itemsContainer {
+        margin-bottom: 15px;
+      }
+
+      .item-field {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .item-field label {
+        margin-right: 10px;
+      }
+
+      .item-field input {
+        width: 70%;
+        padding: 6px;
+        margin-right: 10px;
+      }
+
+      .delete-button {
+        padding: 6px 12px;
+        background-color: #dc3545;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .delete-button:hover {
+        background-color: #c82333;
+      }
+
+      .add-item-button {
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .add-item-button:hover {
+        background-color: #0056b3;
+      }
+
+      button[type="submit"] {
+        padding: 12px 24px;
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        width: 100%;
+      }
+
+      button[type="submit"]:hover {
+        background-color: #218838;
+      }
+
+      .success-message {
+        color: green;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Billing</h2>
+      <form id="myForm" method="POST">
+        <div class="form-group">
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" required />
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone Number:</label>
+          <input type="tel" id="phone" name="phoneNumber" required />
+        </div>
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        <div class="form-group">
+          <label for="items">ITEMS:</label>
+          <div id="itemsContainer"></div>
+          <button type="button" id="addItemButton" class="add-item-button">
+            Add Item
+          </button>
+        </div>
+        <div class="form-group">
+          <input type="submit" value="Submit" />
+        </div>
+      </form>
+      <p id="successMessage" class="success-message" style="display: none">
+        Form submitted successfully!
+      </p>
+
+      <script>
+        document
+          .getElementById("myForm")
+          .addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent the default form submission behavior
+            var formData = new FormData(this);
+            var payload = {
+              name: formData.get("name"),
+              phoneNumber: formData.get("phoneNumber"),
+              email: formData.get("email"),
+              Items: getItemsData(),
+            };
+            sendData(payload);
+            clearItems();
+            clearForm();
+          });
+
+        function getItemsData() {
+          var itemsContainer = document.getElementById("itemsContainer");
+          var itemFields = itemsContainer.getElementsByClassName("item-field");
+          var items = [];
+
+          for (var i = 0; i < itemFields.length; i++) {
+            var item = itemFields[i].querySelector(".item-name").value;
+            var itemqnt = itemFields[i].querySelector(".item-quantity").value;
+            var itemData = {
+              item: item,
+              itemqnt: itemqnt,
+            };
+            items.push(itemData);
+          }
+
+          return items;
+        }
+
+        function addItem() {
+          var itemsContainer = document.getElementById("itemsContainer");
+          var itemCount = itemsContainer.childElementCount + 1;
+
+          var itemField = document.createElement("div");
+          itemField.classList.add("item-field");
+
+          var itemNameLabel = document.createElement("label");
+          itemNameLabel.innerHTML = "Item " + itemCount + ": ";
+          itemField.appendChild(itemNameLabel);
+
+          var itemNameInput = document.createElement("input");
+          itemNameInput.classList.add("item-name");
+          itemNameInput.type = "text";
+          itemNameInput.name = "item" + itemCount;
+          itemNameInput.placeholder = "Item Name";
+          itemField.appendChild(itemNameInput);
+
+          itemField.appendChild(document.createTextNode(" ")); // Add space between item and item quantity
+
+          var itemQuantityLabel = document.createElement("label");
+          itemQuantityLabel.innerHTML = "Item Quantity " + itemCount + ": ";
+          itemField.appendChild(itemQuantityLabel);
+
+          var itemQuantityInput = document.createElement("input");
+          itemQuantityInput.classList.add("item-quantity");
+          itemQuantityInput.type = "number";
+          itemQuantityInput.name = "itemqnt" + itemCount;
+          itemQuantityInput.placeholder = "Item Quantity";
+          itemField.appendChild(itemQuantityInput);
+
+          var deleteButton = document.createElement("button");
+          deleteButton.innerHTML = "Delete";
+          deleteButton.type = "button";
+          deleteButton.addEventListener("click", function () {
+            itemField.remove(); // Remove the item field when the delete button is clicked
+            updateItemNumbers(); // Update the item numbers after deletion
+          });
+          itemField.appendChild(deleteButton);
+
+          itemsContainer.appendChild(itemField);
+        }
+
+        function updateItemNumbers() {
+          var itemsContainer = document.getElementById("itemsContainer");
+          var itemFields = itemsContainer.getElementsByClassName("item-field");
+
+          for (var i = 0; i < itemFields.length; i++) {
+            var itemNameLabel = itemFields[i].querySelector("label");
+            itemNameLabel.innerHTML = "Item " + (i + 1) + ": ";
+
+            var itemQuantityLabel = itemFields[i].querySelectorAll("label")[1];
+            itemQuantityLabel.innerHTML = "Item Quantity " + (i + 1) + ": ";
+          }
+        }
+
+        document
+          .getElementById("addItemButton")
+          .addEventListener("click", function () {
+            addItem();
+          });
+
+        document
+          .getElementById("myForm")
+          .addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+              var focusedElement = document.activeElement;
+              if (
+                focusedElement.classList.contains("item-name") ||
+                focusedElement.classList.contains("item-quantity")
+              ) {
+                addItem();
+              }
+            }
+          });
+
+        function sendData(data) {
+          var xhr = new XMLHttpRequest();
+          xhr.open("POST", "http://localhost:8082/test");
+          xhr.setRequestHeader("Content-Type", "application/json");
+          xhr.onload = function () {
+            if (xhr.status === 200) {
+              // Display success message
+              var successMessage = document.getElementById("successMessage");
+              successMessage.style.display = "block";
+              // Hide success message after 5 seconds
+              setTimeout(function () {
+                successMessage.style.display = "none";
+              }, 5000);
+            }
+          };
+          xhr.send(JSON.stringify(data));
+          // Add any further logic or handling of the response as needed
+        }
+
+        function clearItems() {
+          var itemsContainer = document.getElementById("itemsContainer");
+          itemsContainer.innerHTML = ""; // Clear all child elements
+        }
+
+        function clearForm() {
+          var form = document.getElementById("myForm");
+          form.reset(); // Reset form fields
+        }
+      </script>
+    </div>
+  </body>
+</html>
